@@ -114,7 +114,7 @@ func TestACHDirectoryRead(t *testing.T) {
 	}
 	check(t, "json", jsonDict)
 
-	if len(plainDict.ACHParticipants) != 18198 {
+	if len(plainDict.ACHParticipants) != 18199 {
 		t.Errorf("got %d participants", len(plainDict.ACHParticipants))
 	}
 	check(t, "plain", plainDict)
