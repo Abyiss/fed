@@ -18,40 +18,59 @@ var (
 	flagIterations = flag.Int("iterations", 1000, "How many iterations of each algorithm to test")
 )
 
-func randString() string {
+func randString(t *testing.T) string {
+	t.Helper()
+
 	size := mrand.Uint32() % 1000 //nolint:gosec // max string size of 1k
 	bs := make([]byte, size)
-	n, err := rand.Read(bs)
-	if err != nil || n == 0 {
-		return ""
+	if _, err := rand.Read(bs); err != nil {
+		t.Fatalf("reading random bytes: %v", err)
 	}
 	return strings.ToLower(hex.EncodeToString(bs))
 }
 
 func TestJaroWinkler(t *testing.T) {
 	for i := 0; i < *flagIterations; i += 1 {
-		a, b := randString(), randString()
+		a, b := randString(t), randString(t)
 		check(t, a, b, JaroWinkler(a, b))
 	}
 }
 
 func TestLevenshtein(t *testing.T) {
 	for i := 0; i < *flagIterations; i += 1 {
-		a, b := randString(), randString()
+		a, b := randString(t), randString(t)
 		check(t, a, b, Levenshtein(a, b))
 	}
 }
 
 func TestHamming(t *testing.T) {
 	for i := 0; i < *flagIterations; i += 1 {
-		a, b := randString(), randString()
+		a, b := randString(t), randString(t)
 		check(t, a, b, hamming(a, b))
+	}
+}
+
+func TestEmptyInputs(t *testing.T) {
+	comparisons := []struct {
+		name string
+		fn   func(string, string) float64
+	}{
+		{name: "JaroWinkler", fn: JaroWinkler},
+		{name: "Levenshtein", fn: Levenshtein},
+		{name: "Hamming", fn: hamming},
+		{name: "Soundex", fn: Soundex},
+	}
+
+	for _, comparison := range comparisons {
+		t.Run(comparison.name, func(t *testing.T) {
+			check(t, "", "", comparison.fn("", ""))
+		})
 	}
 }
 
 func TestSoundex(t *testing.T) {
 	for i := 0; i < 500; i += 1 {
-		a, b := randString(), randString()
+		a, b := randString(t), randString(t)
 		if a == "" || b == "" {
 			continue
 		}
@@ -100,6 +119,13 @@ func eql(a, b float64) bool {
 
 func check(t *testing.T, a, b string, score float64) {
 	t.Helper()
+
+	if a == "" || b == "" {
+		if !zero(score) {
+			t.Fatalf("a=%q b=%q got score %.2f and expected 0.00", a, b, score)
+		}
+		return
+	}
 
 	if one(score) && a != b {
 		t.Fatalf("a=%q b=%q matched", a, b)
