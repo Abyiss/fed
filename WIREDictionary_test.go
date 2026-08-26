@@ -97,8 +97,8 @@ func TestWIREDirectoryRead(t *testing.T) {
 	}
 	check(t, "json", jsonDict)
 
-	if len(plainDict.WIREParticipants) != 7693 {
-		t.Errorf("Expected '7693' got: %v", len(plainDict.WIREParticipants))
+	if len(plainDict.WIREParticipants) != 7694 {
+		t.Errorf("Expected '7694' got: %v", len(plainDict.WIREParticipants))
 	}
 	check(t, "plain", plainDict)
 }
