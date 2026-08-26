@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    name: Go Build
+    name: Podman Build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
